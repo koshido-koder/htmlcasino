@@ -3,64 +3,164 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GIFT SELLERS | Professional Garant</title>
-    <!-- Telegram Web App SDK -->
+    <title>Farm Case NFT</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        :root {
+            --bg-color: #121824;
+            --card-bg: #1e293b;
+            --accent: #10b981;
+            --text: #f8fafc;
         }
         body {
-            background-color: var(--tg-theme-bg-color, #0f172a);
-            color: var(--tg-theme-text-color, #f8fafc);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            padding: 20px;
+            background-color: var(--bg-color);
+            color: var(--text);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 15px;
             text-align: center;
         }
-        .container {
-            background: var(--tg-theme-secondary-bg-color, #1e293b);
-            padding: 30px;
-            border-radius: 16px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-            max-width: 400px;
-            width: 100%;
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--card-bg);
+            padding: 12px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
         }
-        h1 {
-            font-size: 24px;
-            margin-bottom: 10px;
+        .balances {
+            font-size: 14px;
+            font-weight: bold;
             color: #38bdf8;
         }
-        p {
-            font-size: 14px;
-            color: #94a3b8;
-            margin-bottom: 25px;
-            line-height: 1.5;
+        .case-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
         }
+        .case-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        .case-card img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+        h3 { margin: 10px 0; }
         .btn {
-            background-color: #0ea5e9;
+            background-color: var(--accent);
             color: white;
             border: none;
-            padding: 12px 20px;
+            padding: 10px 20px;
             font-size: 16px;
-            font-weight: 600;
             border-radius: 8px;
             cursor: pointer;
             width: 100%;
-            transition: background 0.3s ease;
+            margin-top: 10px;
+            font-weight: bold;
         }
-        .btn:hover {
-            background-color: #0284c7;
+        .btn:active { transform: scale(0.98); }
+        #resultModal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
         }
-        .user-info {
-            margin-top: 15px;
-            font-size: 13px;
+        .nft-win-card {
+            background: #1e293b;
+            padding: 25px;
+            border-radius: 16px;
+            width: 80%;
+            max-width: 300px;
+            border: 2px solid var(--accent);
+        }
+        .nft-win-card img { width: 100%; border-radius: 10px; height: 150px; object-fit: cover; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h2>🌾 Farm Case</h2>
+        <div class="balances">
+            ⭐ 150 Stars | 💎 2.4 TON
+        </div>
+    </header>
+
+    <div class="case-grid" id="caseContainer">
+        <!-- Dinamik keyslar shu yerga yuklanadi -->
+    </div>
+
+    <!-- Yutuqni ko'rsatish oynasi -->
+    <div id="resultModal">
+        <div class="nft-win-card">
+            <h3>🎉 Tabriklaymiz!</h3>
+            <img id="wonImg" src="" alt="NFT">
+            <p id="wonName" style="font-weight:bold; margin: 10px 0;"></p>
+            <p id="wonRarity" style="color: #10b981; font-size: 14px;"></p>
+            <button class="btn" onclick="closeModal()">Yopish</button>
+        </div>
+    </div>
+
+    <script>
+        let tg = window.Telegram.WebApp;
+        tg.expand();
+        
+        let userId = tg.initDataUnsafe && tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id : 123456; // Test uchun default ID
+
+        async function loadCases() {
+            let response = await fetch('/api/cases');
+            let cases = await response.json();
+            
+            let container = document.getElementById('caseContainer');
+            container.innerHTML = '';
+            
+            cases.forEach(c => {
+                container.innerHTML += `
+                    <div class="case-card">
+                        <img src="${c.image}" alt="${c.name}">
+                        <h3>${c.name}</h3>
+                        <p>Narxi: ${c.price} TON / ⭐ Stars</p>
+                        <button class="btn" onclick="openCase(${c.id})">Keysni ochish</button>
+                    </div>
+                `;
+            });
+        }
+
+        async function openCase(caseId) {
+            let response = await fetch('/api/open-case', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ user_id: userId, case_id: caseId })
+            });
+            let data = await response.json();
+            
+            if(data.success) {
+                let nft = data.won_nft;
+                document.getElementById('wonImg').src = nft.image;
+                document.getElementById('wonName').innerText = nft.name;
+                document.getElementById('wonRarity').innerText = "Rarity: " + nft.rarity;
+                document.getElementById('resultModal').style.display = 'flex';
+            } else {
+                alert("Xatolik yuz berdi!");
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('resultModal').style.display = 'none';
+        }
+
+        loadCases();
+    </script>
+</body>
+</html>
             color: #cbd5e1;
         }
     </style>
