@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GIFT SELLERS | Professional Garant</title>
+    <!-- Telegram Web App SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background-color: var(--tg-theme-bg-color, #0f172a);
+            color: var(--tg-theme-text-color, #f8fafc);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+            text-align: center;
+        }
+        .container {
+            background: var(--tg-theme-secondary-bg-color, #1e293b);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            max-width: 400px;
+            width: 100%;
+        }
+        h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #38bdf8;
+        }
+        p {
+            font-size: 14px;
+            color: #94a3b8;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+        .btn {
+            background-color: #0ea5e9;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.3s ease;
+        }
+        .btn:hover {
+            background-color: #0284c7;
+        }
+        .user-info {
+            margin-top: 15px;
+            font-size: 13px;
+            color: #cbd5e1;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>🛡 GIFT SELLERS</h1>
+        <p>Telegramdagi eng xavfsiz va ishonchli professional garant xizmatiga xush kelibsiz.</p>
+        
+        <button class="btn" onclick="sendDataToBot()">Tasdiqlash va Davom etish</button>
+        
+        <div class="user-info" id="userInfo"></div>
+    </div>
+
+    <script>
+        // Telegram Web App obyektini chaqiramiz
+        let tg = window.Telegram.WebApp;
+
+        // Oynani to'liq kengaytirish
+        tg.expand();
+
+        // Foydalanuvchi ma'lumotlarini chiqarish (agar Telegram orqali ochilgan bo'lsa)
+        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+            let user = tg.initDataUnsafe.user;
+            document.getElementById("userInfo").innerText = `Salom, ${user.first_name}!`;
+        }
+
+        function sendDataToBot() {
+            // Botga ma'lumot yuborish va Web App'ni yopish
+            tg.sendData("Web App orqali muvaffaqiyatli o'tildi!");
+            tg.close();
+        }
+    </script>
+
+</body>
+</html>
